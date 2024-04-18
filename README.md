@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Next.js × Supabase Authentication
 
-## Getting Started
+## Refs
 
-First, run the development server:
+- [全てがここに！Next.js と Supabase で構築する認証システム](https://zenn.dev/hathle/books/next-supabase-auth-book)
+- [nextjs-supabase-auth-tutorial](https://github.com/haruyasu/nextjs-supabase-auth-tutorial)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Supabase
+
+https://supabase.com/
+
+### Create Tables
+
+```sql
+-- profilesテーブル作成
+create table profiles (
+  id uuid primary key references auth.users on delete cascade,
+  email text not null,
+  name text,
+  introduce text,
+  avatar_url text
+);
+
+-- profilesテーブルRLS設定
+alter table profiles enable row level security;
+create policy "プロフィールは誰でも参照可能" on profiles for select using (true);
+create policy "プロフィールを更新" on profiles for update using (true);
+
+-- サインアップ時にプロフィールテーブル作成する関数
+create function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, email)
+  values (new.id, new.email);
+  return new;
+end;
+$$ language plpgsql security definer set search_path = public;
+
+-- サインアップ時にプロフィールテーブル作成する関数を呼び出すトリガー
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
+-- プロフィール画像のstorage作成
+insert into storage.buckets (id, name, public) values ('profile', 'profile', true);
+create policy "プロフィール画像は誰でも参照可能" on storage.objects for select using ( bucket_id = 'profile' );
+create policy "プロフィール画像はログインユーザーが追加" on storage.objects for insert with check ( bucket_id = 'profile' AND auth.role() = 'authenticated' );
+create policy "自身のプロフィール画像を更新" on storage.objects for update with check ( bucket_id = 'profile' AND auth.uid() = owner );
+create policy "自身のプロフィール画像を削除" on storage.objects for delete using ( bucket_id = 'profile' AND auth.uid() = owner );
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.

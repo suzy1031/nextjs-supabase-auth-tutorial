@@ -1,8 +1,10 @@
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Database } from "../../lib/database.types";
+import { Database } from "../../../../lib/database.types";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import Login from "@/app/components/login";
 
-const Home = async () => {
+const LoginPage = async () => {
   const supabase = createServerComponentClient<Database>({
     cookies,
   });
@@ -11,10 +13,10 @@ const Home = async () => {
     data: { session },
   } = await supabase.auth.getSession();
 
-  return (
-    <div className="text-center text-xl">
-      {session ? <div>ログイン済</div> : <div>未ログイン</div>}
-    </div>
-  );
+  if (session) {
+    redirect("/");
+  }
+
+  return <Login />;
 };
-export default Home;
+export default LoginPage;
