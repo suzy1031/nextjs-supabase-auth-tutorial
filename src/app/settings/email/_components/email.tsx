@@ -7,7 +7,8 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Loading from "@/app/loading";
 import * as z from "zod";
-import { Database } from "../../../lib/database.types";
+import { Database } from "../../../../../lib/database.types";
+import useStore from "../../../../../store";
 type Schema = z.infer<typeof schema>;
 
 // 入力データの検証ルールを定義
@@ -15,11 +16,13 @@ const schema = z.object({
   email: z.string().email({ message: "メールアドレスの形式ではありません。" }),
 });
 
-const Email = ({ email }: { email: string }) => {
+const Email = () => {
   const router = useRouter();
   const supabase = createClientComponentClient<Database>();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+
+  const store = useStore();
 
   const {
     register,
@@ -76,7 +79,7 @@ const Email = ({ email }: { email: string }) => {
         {/* 現在のメールアドレス */}
         <div className="mb-5">
           <div className="text-sm mb-1 font-bold">現在のメールアドレス</div>
-          <div>{email}</div>
+          <div>{store.user.email}</div>
         </div>
 
         {/* 新しいメールアドレス */}
