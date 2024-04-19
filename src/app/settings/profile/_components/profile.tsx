@@ -2,13 +2,13 @@
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
-import { Database } from "../../../lib/database.types";
+import { Database } from "../../../../../lib/database.types";
 import React, { useCallback, useEffect, useState } from "react";
-import useStore from "../../../store";
+import useStore from "../../../../../store";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { v4 as uuidv4 } from "uuid";
-import Loading from "../loading";
+import Loading from "../../../loading";
 import Image from "next/image";
 
 type Schema = z.infer<typeof schema>;
