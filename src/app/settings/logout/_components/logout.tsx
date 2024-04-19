@@ -3,8 +3,8 @@
 import { FormEvent, useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
-import { Database } from "../../../lib/database.types";
-import Loading from "../loading";
+import { Database } from "../../../../../lib/database.types";
+import Loading from "../../../loading";
 
 const Logout = () => {
   const router = useRouter();
