@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Database } from "../../../lib/database.types";
 import Loading from "../loading";
+import { resetPassword } from "../../../lib/api/client";
 type Schema = z.infer<typeof schema>;
 
 // 入力データの検証ルールを定義
@@ -17,7 +16,6 @@ const schema = z.object({
 
 const ResetPassword = () => {
   const router = useRouter();
-  const supabase = createClientComponentClient<Database>();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -37,9 +35,7 @@ const ResetPassword = () => {
     setMessage("");
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-        redirectTo: `${location.origin}/auth/reset-password/confirm`,
-      });
+      const error = await resetPassword(data.email);
 
       if (error) {
         setMessage("エラーが発生しました" + error.message);

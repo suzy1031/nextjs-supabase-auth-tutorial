@@ -1,14 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import * as z from "zod";
 import Loading from "../loading";
 import Link from "next/link";
-import { Database } from "../../../lib/database.types";
+import { signup, updateName } from "../../../lib/api/client";
 type Schema = z.infer<typeof schema>;
 
 const schema = z.object({
@@ -18,7 +17,6 @@ const schema = z.object({
 });
 const Signup = () => {
   const router = useRouter();
-  const supabase = createClientComponentClient<Database>();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -38,23 +36,14 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      const { error: errorSignup } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          emailRedirectTo: `${location.origin}/auth/callback`,
-        },
-      });
+      const errorSignup = await signup(data.email, data.password);
 
       if (errorSignup) {
         setMessage("エラーが発生しました" + errorSignup.message);
         return;
       }
 
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ name: data.name })
-        .eq("email", data.email);
+      const updateError = await updateName(data.name, data.email);
 
       if (updateError) {
         setMessage("エラーが発生しました" + updateError.message);

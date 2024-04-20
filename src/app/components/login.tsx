@@ -1,14 +1,13 @@
 "use client";
 
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
-import { Database } from "../../../lib/database.types";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Loading from "../loading";
 import Link from "next/link";
+import { login } from "../../../lib/api/client";
 type Schema = z.infer<typeof schema>;
 
 const schema = z.object({
@@ -18,7 +17,6 @@ const schema = z.object({
 
 const Login = () => {
   const router = useRouter();
-  const supabase = createClientComponentClient<Database>();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -34,10 +32,7 @@ const Login = () => {
   const onSubmit: SubmitHandler<Schema> = async (data) => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
+      const error = await login(data.email, data.password);
 
       if (error) {
         setMessage("エラーが発生しました" + error.message);

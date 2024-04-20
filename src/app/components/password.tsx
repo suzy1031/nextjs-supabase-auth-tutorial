@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Loading from "@/app/loading";
 import * as z from "zod";
-import { Database } from "../../../lib/database.types";
+import { updatePassword } from "../../../lib/api/client";
 type Schema = z.infer<typeof schema>;
 
 const schema = z
@@ -26,7 +25,6 @@ const schema = z
 
 const Password = () => {
   const router = useRouter();
-  const supabase = createClientComponentClient<Database>();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -47,9 +45,7 @@ const Password = () => {
     setMessage("");
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: data.password,
-      });
+      const error = await updatePassword(data.password);
 
       if (error) {
         setMessage("エラーが発生しました" + error.message);
