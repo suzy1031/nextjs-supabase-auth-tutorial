@@ -1,11 +1,11 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import React from "react";
-import { serverSide } from "../lib/api/client";
+import { getSession } from "../lib/api/server";
 
 const withAuthenticated = (WrappedComponent: () => JSX.Element) => {
   const Auth = async (props: JSX.IntrinsicAttributes) => {
-    const session = (await serverSide(cookies)).getSession();
+    const session = await getSession();
 
     if (!session) {
       redirect("/auth/login");
