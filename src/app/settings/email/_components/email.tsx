@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Loading from "@/app/loading";
 import * as z from "zod";
-import { Database } from "../../../../../lib/database.types";
 import useStore from "../../../../../store";
+import { sendEmail, signOut } from "../../../../../lib/api/client";
 type Schema = z.infer<typeof schema>;
 
 // 入力データの検証ルールを定義
@@ -18,7 +17,6 @@ const schema = z.object({
 
 const Email = () => {
   const router = useRouter();
-  const supabase = createClientComponentClient<Database>();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -40,12 +38,7 @@ const Email = () => {
     setMessage("");
 
     try {
-      const { error: updateUserError } = await supabase.auth.updateUser(
-        {
-          email: data.email,
-        },
-        { emailRedirectTo: `${location.origin}/auth/login` } // メール本文に記載するURL(supabaseが提供するマネージドサービス)
-      );
+      const updateUserError = await sendEmail(data.email);
 
       if (updateUserError) {
         setMessage("エラーが発生しました" + updateUserError.message);
@@ -54,7 +47,7 @@ const Email = () => {
 
       setMessage("確認用のURLを記載したメールを送信しました｡");
 
-      const { error: signOutError } = await supabase.auth.signOut();
+      const signOutError = await signOut();
 
       if (signOutError) {
         setMessage("エラーが発生しました" + signOutError.message);

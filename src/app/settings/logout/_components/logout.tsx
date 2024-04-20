@@ -1,14 +1,12 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
-import { Database } from "../../../../../lib/database.types";
 import Loading from "../../../loading";
+import { signOut } from "../../../../../lib/api/client";
 
 const Logout = () => {
   const router = useRouter();
-  const supabase = createClientComponentClient<Database>();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -17,7 +15,7 @@ const Logout = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signOut();
+      const error = await signOut();
 
       if (error) {
         setMessage("エラーが発生しました" + error.message);

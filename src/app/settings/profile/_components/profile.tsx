@@ -1,15 +1,18 @@
 "use client";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
-import { Database } from "../../../../../lib/database.types";
 import React, { useCallback, useEffect, useState } from "react";
 import useStore from "../../../../../store";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { v4 as uuidv4 } from "uuid";
 import Loading from "../../../loading";
 import Image from "next/image";
+import {
+  getAvatarUrl,
+  removeAvatar,
+  updateProfile,
+  uploadAvatar,
+} from "../../../../../lib/api/client";
 
 type Schema = z.infer<typeof schema>;
 
@@ -21,7 +24,6 @@ const schema = z.object({
 
 const Profile = () => {
   const router = useRouter();
-  const supabase = createClientComponentClient<Database>();
   const [loading, setLoading] = useState(false);
   const [avatar, setAvatar] = useState<File | null>(null);
   const [message, setMessage] = useState("");
@@ -83,8 +85,9 @@ const Profile = () => {
       let avatar_url = user.avatar_url;
 
       if (avatar) {
-        const { data: storageData, error: storageError } =
-          await supabase.storage.from("profile").upload(`${uuidv4()}`, avatar);
+        const { data: storageData, error: storageError } = await uploadAvatar(
+          avatar
+        );
 
         if (storageError) {
           setMessage("エラーが発生しました" + storageError.message);
@@ -93,25 +96,19 @@ const Profile = () => {
 
         if (avatar_url) {
           const fileName = avatar_url.split("").splice(-1)[0];
-          await supabase.storage
-            .from("profile")
-            .remove([`${user.id}/${fileName}`]);
+          await removeAvatar(user.id, fileName);
         }
 
-        const { data: urlData } = await supabase.storage
-          .from("profile")
-          .getPublicUrl(storageData.path);
+        const urlData = await getAvatarUrl(storageData?.path ?? "");
         avatar_url = urlData.publicUrl;
       }
 
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({
-          name: data.name,
-          introduce: data.introduce,
-          avatar_url,
-        })
-        .eq("id", user.id);
+      const updateError = await updateProfile(
+        data.name,
+        data.introduce,
+        avatar_url,
+        user.id
+      );
 
       if (updateError) {
         setMessage("エラーが発生しました" + updateError.message);
