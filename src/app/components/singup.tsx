@@ -1,13 +1,13 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Loading from "../loading";
 import Link from "next/link";
 import { signup, updateName } from "../../../lib/api/client";
-import { SingUpSchema, resolver } from "../../../lib/schema";
+import { SignUpSchema, singupSchema } from "../../../lib/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const Signup = () => {
   const router = useRouter();
@@ -23,10 +23,10 @@ const Signup = () => {
     // 初期値
     defaultValues: { name: "", email: "", password: "" },
     // 入力値の検証
-    resolver,
+    resolver: zodResolver(singupSchema),
   });
 
-  const onSubmit: SubmitHandler<SingUpSchema> = async (data) => {
+  const onSubmit: SubmitHandler<SignUpSchema> = async (data) => {
     setLoading(true);
 
     try {

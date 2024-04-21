@@ -5,8 +5,9 @@ import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Loading from "../loading";
 import Link from "next/link";
+import { LoginSchema, loginSchema } from "../../../lib/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { login } from "../../../lib/api/client";
-import { LoginSchema, resolver } from "../../../lib/schema";
 
 const Login = () => {
   const router = useRouter();
@@ -19,7 +20,7 @@ const Login = () => {
     formState: { errors },
   } = useForm({
     defaultValues: { email: "", password: "" },
-    resolver,
+    resolver: zodResolver(loginSchema),
   });
 
   const onSubmit: SubmitHandler<LoginSchema> = async (data) => {

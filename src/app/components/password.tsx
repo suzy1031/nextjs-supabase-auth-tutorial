@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Loading from "@/app/loading";
 import { updatePassword } from "../../../lib/api/client";
-import { PasswordSchema, resolver } from "../../../lib/schema";
+import { PasswordSchema, passwordSchema } from "../../../lib/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const Password = () => {
   const router = useRouter();
@@ -21,7 +22,7 @@ const Password = () => {
     // 初期値
     defaultValues: { password: "", confirmation: "" },
     // 入力値の検証
-    resolver,
+    resolver: zodResolver(passwordSchema),
   });
 
   const onSubmit: SubmitHandler<PasswordSchema> = async (data) => {

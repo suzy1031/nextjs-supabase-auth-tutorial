@@ -11,7 +11,8 @@ import {
   updateProfile,
   uploadAvatar,
 } from "../../../../../lib/api/client";
-import { ProfileSchema, resolver } from "../../../../../lib/schema";
+import { ProfileSchema, profileSchema } from "../../../../../lib/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const Profile = () => {
   const router = useRouter();
@@ -33,7 +34,7 @@ const Profile = () => {
       introduce: user.introduce ?? "",
     },
     // 入力値の検証
-    resolver,
+    resolver: zodResolver(profileSchema),
   });
 
   useEffect(() => {

@@ -6,7 +6,8 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import Loading from "@/app/loading";
 import useStore from "../../../../../store";
 import { sendEmail, signOut } from "../../../../../lib/api/client";
-import { EmailSchema, resolver } from "../../../../../lib/schema";
+import { EmailSchema, emailSchema } from "../../../../../lib/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const Email = () => {
   const router = useRouter();
@@ -23,7 +24,7 @@ const Email = () => {
     // 初期値
     defaultValues: { email: "" },
     // 入力値の検証
-    resolver,
+    resolver: zodResolver(emailSchema),
   });
 
   const onSubmit: SubmitHandler<EmailSchema> = async (data) => {
