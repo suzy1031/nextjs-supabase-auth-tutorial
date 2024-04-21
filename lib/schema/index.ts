@@ -1,11 +1,12 @@
 import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 
-const schema = z
+export const loginSchema = z.object({
+  email: z.string().email({ message: "メールアドレスの形式ではありません｡" }),
+  password: z.string().min(6, { message: "6文字以上入力する必要があります｡" }),
+});
+
+export const passwordSchema = z
   .object({
-    name: z.string().min(2, { message: "2文字以上入力する必要があります。" }),
-    introduce: z.string().min(0),
-    email: z.string().email({ message: "メールアドレスの形式ではありません｡" }),
     password: z
       .string()
       .min(6, { message: "6文字以上入力する必要があります｡" }),
@@ -18,12 +19,23 @@ const schema = z
     path: ["confirmation"], // エラーメッセージが適用されるフィールド
   });
 
-type Schema = z.infer<typeof schema>;
+export const emailSchema = z.object({
+  email: z.string().email({ message: "メールアドレスの形式ではありません｡" }),
+});
 
-export type LoginSchema = Pick<Schema, "email" | "password">;
-export type ProfileSchema = Pick<Schema, "name" | "introduce">;
-export type EmailSchema = Pick<Schema, "email">;
-export type SingUpSchema = Pick<Schema, "name" | "email" | "password">;
-export type PasswordSchema = Pick<Schema, "password" | "confirmation">;
+export const singupSchema = z.object({
+  name: z.string().min(2, { message: "2文字以上入力する必要があります。" }),
+  email: z.string().email({ message: "メールアドレスの形式ではありません｡" }),
+  password: z.string().min(6, { message: "6文字以上入力する必要があります｡" }),
+});
 
-export const resolver = zodResolver(schema);
+export const profileSchema = z.object({
+  name: z.string().min(2, { message: "2文字以上入力する必要があります。" }),
+  introduce: z.string().min(0),
+});
+
+export type LoginSchema = z.infer<typeof loginSchema>;
+export type PasswordSchema = z.infer<typeof passwordSchema>;
+export type EmailSchema = z.infer<typeof emailSchema>;
+export type SignUpSchema = z.infer<typeof singupSchema>;
+export type ProfileSchema = z.infer<typeof profileSchema>;
