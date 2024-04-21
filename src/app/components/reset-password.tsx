@@ -3,16 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import Loading from "../loading";
 import { resetPassword } from "../../../lib/api/client";
-type Schema = z.infer<typeof schema>;
-
-// 入力データの検証ルールを定義
-const schema = z.object({
-  email: z.string().email({ message: "メールアドレスの形式ではありません。" }),
-});
+import { EmailSchema, resolver } from "../../../lib/schema";
 
 const ResetPassword = () => {
   const router = useRouter();
@@ -27,10 +20,10 @@ const ResetPassword = () => {
     // 初期値
     defaultValues: { email: "" },
     // 入力値の検証
-    resolver: zodResolver(schema),
+    resolver,
   });
 
-  const onSubmit: SubmitHandler<Schema> = async (data) => {
+  const onSubmit: SubmitHandler<EmailSchema> = async (data) => {
     setLoading(true);
     setMessage("");
 

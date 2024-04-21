@@ -4,17 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import * as z from "zod";
 import Loading from "../loading";
 import Link from "next/link";
 import { signup, updateName } from "../../../lib/api/client";
-type Schema = z.infer<typeof schema>;
+import { SingUpSchema, resolver } from "../../../lib/schema";
 
-const schema = z.object({
-  name: z.string().min(2, { message: "2文字以上入力する必要があります。" }),
-  email: z.string().email({ message: "メールアドレスの形式ではありません。" }),
-  password: z.string().min(6, { message: "6文字以上入力する必要があります。" }),
-});
 const Signup = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -29,10 +23,10 @@ const Signup = () => {
     // 初期値
     defaultValues: { name: "", email: "", password: "" },
     // 入力値の検証
-    resolver: zodResolver(schema),
+    resolver,
   });
 
-  const onSubmit: SubmitHandler<Schema> = async (data) => {
+  const onSubmit: SubmitHandler<SingUpSchema> = async (data) => {
     setLoading(true);
 
     try {

@@ -3,25 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import Loading from "@/app/loading";
-import * as z from "zod";
 import { updatePassword } from "../../../lib/api/client";
-type Schema = z.infer<typeof schema>;
-
-const schema = z
-  .object({
-    password: z
-      .string()
-      .min(6, { message: "6文字以上入力する必要があります。" }),
-    confirmation: z
-      .string()
-      .min(6, { message: "6文字以上入力する必要があります。" }),
-  })
-  .refine((data) => data.password === data.confirmation, {
-    message: "新しいパスワードと確認用パスワードが一致しません。",
-    path: ["confirmation"], // エラーメッセージが適用されるフィールド
-  });
+import { PasswordSchema, resolver } from "../../../lib/schema";
 
 const Password = () => {
   const router = useRouter();
@@ -37,10 +21,10 @@ const Password = () => {
     // 初期値
     defaultValues: { password: "", confirmation: "" },
     // 入力値の検証
-    resolver: zodResolver(schema),
+    resolver,
   });
 
-  const onSubmit: SubmitHandler<Schema> = async (data) => {
+  const onSubmit: SubmitHandler<PasswordSchema> = async (data) => {
     setLoading(true);
     setMessage("");
 

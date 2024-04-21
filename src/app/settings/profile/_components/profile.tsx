@@ -1,10 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
-import * as z from "zod";
 import React, { useCallback, useEffect, useState } from "react";
 import useStore from "../../../../../store";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import Loading from "../../../loading";
 import Image from "next/image";
 import {
@@ -13,14 +11,7 @@ import {
   updateProfile,
   uploadAvatar,
 } from "../../../../../lib/api/client";
-
-type Schema = z.infer<typeof schema>;
-
-// 入力データの検証ルールを定義
-const schema = z.object({
-  name: z.string().min(2, { message: "2文字以上入力する必要があります。" }),
-  introduce: z.string().min(0),
-});
+import { ProfileSchema, resolver } from "../../../../../lib/schema";
 
 const Profile = () => {
   const router = useRouter();
@@ -38,11 +29,11 @@ const Profile = () => {
   } = useForm({
     // 初期値
     defaultValues: {
-      name: user.name ? user.name : "",
-      introduce: user.introduce ? user.introduce : "",
+      name: user.name ?? "",
+      introduce: user.introduce ?? "",
     },
     // 入力値の検証
-    resolver: zodResolver(schema),
+    resolver,
   });
 
   useEffect(() => {
@@ -77,7 +68,7 @@ const Profile = () => {
     []
   );
 
-  const onSubmit: SubmitHandler<Schema> = async (data) => {
+  const onSubmit: SubmitHandler<ProfileSchema> = async (data) => {
     setLoading(true);
     setMessage("");
 

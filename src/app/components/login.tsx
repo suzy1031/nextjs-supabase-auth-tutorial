@@ -1,19 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import * as z from "zod";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import Loading from "../loading";
 import Link from "next/link";
 import { login } from "../../../lib/api/client";
-type Schema = z.infer<typeof schema>;
-
-const schema = z.object({
-  email: z.string().email({ message: "メールアドレスの形式ではありません｡" }),
-  password: z.string().min(6, { message: "6文字以上入力する必要があります｡" }),
-});
+import { LoginSchema, resolver } from "../../../lib/schema";
 
 const Login = () => {
   const router = useRouter();
@@ -26,10 +19,10 @@ const Login = () => {
     formState: { errors },
   } = useForm({
     defaultValues: { email: "", password: "" },
-    resolver: zodResolver(schema),
+    resolver,
   });
 
-  const onSubmit: SubmitHandler<Schema> = async (data) => {
+  const onSubmit: SubmitHandler<LoginSchema> = async (data) => {
     setLoading(true);
     try {
       const error = await login(data.email, data.password);
